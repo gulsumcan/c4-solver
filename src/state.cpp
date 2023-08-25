@@ -2,6 +2,8 @@
 #include <iostream>
 #include <unordered_map>
 #include <cassert>
+#include <random>
+#include <string>
 
 #include "config.h"
 #include "state.h"
@@ -71,16 +73,17 @@ bool GameState::isValid(int move) const
     if (move < 0 || move >= COLS)
         return false;
 
-    // there should be empty row for the given column
-    for (int row = 0; row < ROWS; row++)
-    {
-        if (board[row][move] == 0)
-        {
-            return true;
-        }
-    }
+    return board[ROWS-1][move] == 0;
+    // // there should be empty row for the given column
+    // for (int row = 0; row < ROWS; row++)
+    // {
+    //     if (board[row][move] == 0)
+    //     {
+    //         return true;
+    //     }
+    // }
 
-    return false; // there is no more empty rows
+    // return false; // there is no more empty rows
 }
 
 bool GameState::isVerticalWin(int player, int rowPlayed, int lastMove) const
@@ -187,6 +190,19 @@ bool GameState::isWin(int player, int lastMove) const
     return isVerticalWin(player, rowPlayed, lastMove) || isHorizontalWin(player, rowPlayed, lastMove) || isDiagonalWinLeft(player, rowPlayed, lastMove) || isDiagonalWinRight(player, rowPlayed, lastMove);
 }
 
+bool GameState::isDraw() const
+{
+    int moves[7] = {0, 1, 2, 3, 4, 5, 6};
+
+    for (int move : moves)
+    {
+        if (isValid(move))
+            return false;
+    }
+
+    return true;
+}
+
 void GameState::printGameState() const
 {
     // Print the game board
@@ -230,7 +246,8 @@ void GameState::applyMove(int move)
         }
     }
 
-    throw invalid_argument("Invalid move!");
+    printGameState();
+    throw invalid_argument("!" + to_string(move) + " is an invalid move!");
 }
 
 void GameState::applyMoveNoSwitch(int move)
@@ -245,5 +262,55 @@ void GameState::applyMoveNoSwitch(int move)
         }
     }
 
-    throw invalid_argument("Invalid move!");
+    printGameState();
+    throw invalid_argument(move + " is an invalid move!");
+}
+
+int GameState::getValidMove() const
+{
+    int moves[7] = {0, 1, 2, 3, 4, 5, 6};
+    vector<int> validMoves;
+
+    for (int move : moves)
+    {
+        if (isValid(move))
+            validMoves.push_back(move);
+    }
+
+    if (validMoves.size() == 0)
+    {
+        throw invalid_argument("no more valid moves left");
+    }
+
+    int randomIndex = rand() % validMoves.size();
+    return validMoves.at(randomIndex);
+}
+
+double GameState::simulate(bool verbose)
+{
+    GameState start = GameState(board, currentPlayer);
+    int move, player;
+    while (!start.isDraw())
+    {
+        move = start.getValidMove();
+        player = start.currentPlayer;
+        start.applyMove(move);
+
+        if (verbose)
+        {
+            cout << "After applying move " << move << " for player " << player << endl;
+            start.printGameState();
+        }
+
+        if (start.isWin(player, move))
+        {
+            if (verbose)
+                cout << "Player " << player << " won!" << endl;
+            return player == 1 ? 1.0 : 0.0;
+        }
+    }
+
+    if (verbose)
+        cout << "It's a draw!" << endl;
+    return 0.5;
 }

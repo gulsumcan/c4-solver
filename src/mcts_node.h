@@ -17,12 +17,15 @@ struct MCTSNode
     int move;
 
     MCTSNode();
-    ~MCTSNode();
+    MCTSNode(GameState);
     MCTSNode(int, MCTSNode *);
-    void expand();
-    void removeFromParent(MCTSNode *);
+    ~MCTSNode();
+
     MCTSNode *select();
+    void expand();
+    void backPropagate(double);
 
     double getUCT(MCTSNode *) const;
     void printMCTSNode() const;
+    void removeFromParent(MCTSNode *);
 };

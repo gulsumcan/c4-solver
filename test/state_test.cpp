@@ -1,5 +1,6 @@
 #include <iostream>
 #include <cassert>
+#include <random>
 
 #include "../src/config.h"
 #include "../src/state.h"
@@ -39,6 +40,13 @@ void expectException(void (*func)(GameState, int, int), GameState state, int pla
     }
 
     assert(exceptionThrown); // or whatever else you want to do
+}
+
+void testSimulate()
+{
+    cout << "Simulating a game until someone wins..." << endl;
+    GameState state = GameState();
+    state.simulate(true);
 }
 
 void testMoves()
@@ -305,16 +313,56 @@ void testRemoveParentLink()
     assert(parent.children.size() == 6);
 }
 
+void testBackPropagate()
+{
+    GameState state = GameState();
+    MCTSNode parent = MCTSNode();
+    parent.expand();
+
+    MCTSNode *child1 = parent.children.at(0);
+    child1->expand();
+
+    MCTSNode *grandChild1 = child1->children.at(0);
+
+    grandChild1->backPropagate(10);
+
+    assert(grandChild1->visits == 1);
+    assert(grandChild1->value == 10.0);
+
+    assert(child1->visits == 1);
+    assert(child1->value == 10.0);
+
+    assert(parent.visits == 1);
+    assert(parent.value == 10.0);
+
+    child1->backPropagate(10);
+
+    assert(grandChild1->visits == 1);
+    assert(grandChild1->value == 10.0);
+
+    assert(child1->visits == 2);
+    assert(child1->value == 20.0);
+
+    assert(parent.visits == 2);
+    assert(parent.value == 20.0);
+}
+
 void MCTSNodeTests()
 {
     testDefaultConstructor();
     testConstructorWithParent();
     testExpandAndDeconstructor();
     testRemoveParentLink();
+    testBackPropagate();
 }
 
 int main()
 {
+    srand(1);
+    if (MCTS_NODE_TEST)
+    {
+        MCTSNodeTests();
+    }
     if (STATE_TEST)
     {
         testMoves();
@@ -325,11 +373,7 @@ int main()
         testIllegalMoves();
 
         testDeepCopy();
+        // testSimulate();
     }
-    if (MCTS_NODE_TEST)
-    {
-        MCTSNodeTests();
-    }
-
     return 0;
 }

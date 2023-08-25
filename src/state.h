@@ -14,11 +14,15 @@ struct GameState
     GameState(GameState &other);
     bool operator==(const GameState &other) const;
     bool isValid(int move) const;
+    bool isDraw() const;
+
     bool isWin(int player, int lastMove) const;
+    int getValidMove() const;
     void printGameState() const;
 
     void applyMove(int move);
     void applyMoveNoSwitch(int move);
+    double simulate(bool);
 
 private:
     bool isVerticalWin(int player, int rowPlayed, int lastMove) const;

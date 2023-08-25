@@ -33,6 +33,19 @@ MCTSNode::MCTSNode()
     CREATE_++;
 }
 
+MCTSNode::MCTSNode(GameState s)
+{
+    this->parent = nullptr;
+    this->move = -1;
+
+    this->state = GameState(s);
+    this->visits = 0;
+    this->value = 0.0;
+    this->children = vector<MCTSNode *>{};
+
+    CREATE_++;
+}
+
 MCTSNode::~MCTSNode()
 {
     for (MCTSNode *child : children)
@@ -51,6 +64,8 @@ MCTSNode::~MCTSNode()
     {
         parent->removeFromParent(this);
         parent = nullptr;
+
+        cout << "Created " << CREATE_ << ", Deleted " << DELETE_ << endl;
     }
 
     DELETE_++;
@@ -67,9 +82,9 @@ MCTSNode::MCTSNode(int m, MCTSNode *p)
 {
     parent = p;
     move = m;
-
     state = GameState(p->state);
-    state.applyMoveNoSwitch(m);
+    state.applyMove(m);
+
     visits = 0;
     value = 0.0;
     children = vector<MCTSNode *>{};
@@ -137,6 +152,17 @@ MCTSNode *MCTSNode::select()
     }
 
     return bestChild->select();
+}
+
+void MCTSNode::backPropagate(double result)
+{
+    visits += 1;
+    value += result;
+
+    if (parent)
+    {
+        parent->backPropagate(result);
+    }
 }
 
 double MCTSNode::getUCT(MCTSNode *child) const
