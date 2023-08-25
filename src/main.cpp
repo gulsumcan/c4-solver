@@ -10,11 +10,79 @@
 using namespace std;
 using namespace std::chrono;
 
-const bool VERBOSE = false;
+const bool VERBOSE = true;
+
+double competeAgainstHuman(GameState state)
+{
+    int lastMove, lastPlayer;
+    int totalMoves = 0;
+    nanoseconds totalTimeForMoves;
+    if (VERBOSE)
+    {
+        cout << "Starting a game..." << endl;
+        state.printGameState();
+    }
+    while (!state.isDraw())
+    {
+        if (state.currentPlayer == 2)
+        {
+            cin >> lastMove;
+            while (!state.isValid(lastMove))
+            {
+                cout << "You entered an invalis input! Please enter again... ";
+                cin >> lastMove;
+            }
+            state.applyMove(lastMove);
+            lastPlayer = 2;
+        }
+        else
+        {
+            time_point moveStartTime = steady_clock().now();
+            MCTS mcts = MCTS(state, 100000);
+            MCTSNode *bestMove = mcts.mcts();
+            time_point moveEndTime = steady_clock().now();
+
+            totalTimeForMoves += duration_cast<nanoseconds>(moveEndTime - moveStartTime);
+            state.applyMove(bestMove->move);
+            lastMove = bestMove->move;
+            lastPlayer = 1;
+
+            totalMoves++;
+            // delete bestMove;
+        }
+
+        if (VERBOSE)
+        {
+            cout << "After applying move " << lastMove << " for player " << lastPlayer << endl;
+            state.printGameState();
+        }
+
+        if (state.isWin(lastPlayer, lastMove))
+        {
+            if (VERBOSE)
+                cout << "Player " << lastPlayer << " won!" << endl
+                     << endl;
+
+            cout << "Total moves: " << totalMoves << endl;
+            cout << "Move time ns: " << duration_cast<milliseconds>(totalTimeForMoves / totalMoves) << endl;
+            return lastPlayer == 1 ? 1.0 : 0.0;
+        }
+    }
+
+    if (VERBOSE)
+        cout << "It's a draw!" << endl
+             << endl;
+
+    cout << "Total moves: " << totalMoves << endl;
+    cout << "Move time ns: " << totalTimeForMoves / totalMoves << endl;
+    return 0.5;
+}
 
 double competeAgainstSelf(GameState state)
 {
     int lastMove, lastPlayer;
+    int totalMoves = 0;
+    nanoseconds totalTimeForMoves;
     if (VERBOSE)
     {
         cout << "Starting a game..." << endl;
@@ -32,11 +100,17 @@ double competeAgainstSelf(GameState state)
         }
         else
         {
+            time_point moveStartTime = steady_clock().now();
             MCTS mcts = MCTS(state, 1000);
             MCTSNode *bestMove = mcts.mcts();
+            time_point moveEndTime = steady_clock().now();
+
+            totalTimeForMoves += duration_cast<nanoseconds>(moveEndTime - moveStartTime);
             state.applyMove(bestMove->move);
             lastMove = bestMove->move;
             lastPlayer = 1;
+
+            totalMoves++;
             // delete bestMove;
         }
 
@@ -51,6 +125,9 @@ double competeAgainstSelf(GameState state)
             if (VERBOSE)
                 cout << "Player " << lastPlayer << " won!" << endl
                      << endl;
+
+            cout << "Total moves: " << totalMoves << endl;
+            cout << "Move time ns: " << duration_cast<milliseconds>(totalTimeForMoves / totalMoves) << endl;
             return lastPlayer == 1 ? 1.0 : 0.0;
         }
     }
@@ -59,6 +136,8 @@ double competeAgainstSelf(GameState state)
         cout << "It's a draw!" << endl
              << endl;
 
+    cout << "Total moves: " << totalMoves << endl;
+    cout << "Move time ns: " << totalTimeForMoves / totalMoves << endl;
     return 0.5;
 }
 
@@ -149,7 +228,7 @@ int main()
         {0, 0, 0, 0, 0, 0, 0}  // Row 6
     };
 
-    GameState initialState = GameState(board, 2);
+    GameState initialState = GameState(board, 1);
 
     int win = 0;
     int lose = 0;
@@ -159,7 +238,7 @@ int main()
     for (int i = 1; i <= games; i++)
     {
         time_point gameStartTime = steady_clock().now();
-        double result = competeAgainstSelf(initialState);
+        double result = competeAgainstHuman(initialState);
         time_point gameEndTime = steady_clock().now();
 
         nanoseconds timeTaken = duration_cast<nanoseconds>(gameEndTime - gameStartTime);
