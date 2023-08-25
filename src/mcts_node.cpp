@@ -31,35 +31,29 @@ MCTSNode::MCTSNode()
     this->children = vector<MCTSNode *>{};
 
     CREATE_++;
-    cout << "Created new node, total created: " << CREATE_ << ", total deleted: " << DELETE_ << endl;
-    this->printMCTSNode();
-    cout << endl;
 }
 
 MCTSNode::~MCTSNode()
 {
-    DELETE_++;
-    cout << "Deconstructor is being called, total created: " << CREATE_ << ", total deleted: " << DELETE_ << endl
-         << endl;
-    printMCTSNode();
     for (MCTSNode *child : children)
     {
         if (!child)
         {
             continue;
         }
-        cout << "Deleting child" << endl;
-        child->printMCTSNode();
+        child->parent = nullptr;
         delete child;
     }
 
     children.clear();
 
-    // if (parent)
-    // {
-    //     parent->removeFromParent(this);
-    //     parent = nullptr;
-    // }
+    if (parent)
+    {
+        parent->removeFromParent(this);
+        parent = nullptr;
+    }
+
+    DELETE_++;
 }
 
 void MCTSNode::removeFromParent(MCTSNode *child)
@@ -75,22 +69,13 @@ MCTSNode::MCTSNode(int m, MCTSNode *p)
     move = m;
 
     state = GameState(p->state);
-    cout << "previous state: " << endl;
-    p->state.printGameState();
     state.applyMoveNoSwitch(m);
-
-    cout << "new state: " << endl;
-    state.printGameState();
     visits = 0;
     value = 0.0;
     children = vector<MCTSNode *>{};
 
     p->children.push_back(this);
     CREATE_++;
-
-    cout << "Created new node, total created: " << CREATE_ << ", total deleted: " << DELETE_ << endl;
-    this->printMCTSNode();
-    cout << endl;
 }
 
 // populates children nodes for MCTSNode

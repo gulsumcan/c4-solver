@@ -7,7 +7,7 @@
 
 using namespace std;
 
-const bool STATE_TEST = false;
+const bool STATE_TEST = true;
 const bool MCTS_NODE_TEST = true;
 
 // Helper function to initialize a GameState object with an empty board
@@ -281,19 +281,17 @@ void testExpandAndDeconstructor()
     child1->expand();
     assert(child1->children.size() == 7);
 
-    // MCTSNode* grandChild1 = child1->children.at(0);
-    // assert(grandChild1->parent == child1);
-    // assert(grandChild1->children.size() == 0);
+    MCTSNode *grandChild1 = child1->children.at(0);
+    assert(grandChild1->parent == child1);
+    assert(grandChild1->children.size() == 0);
 
-    // grandChild1->expand();
-    // assert(grandChild1 -> children.size() == 7);
-    // MCTSNode* grandChild2 = grandChild1->children.at(0);
+    grandChild1->expand();
+    assert(grandChild1->children.size() == 7);
+    MCTSNode *grandChild2 = grandChild1->children.at(0);
 
-    // // test deconstructor
-    // delete grandChild1;
-    // assert(grandChild2==nullptr);
-    // assert(grandChild1==nullptr);
-    // assert(child1->children.size() == 6);
+    // test deconstructor
+    delete grandChild1;
+    assert(child1->children.size() == 6);
 }
 
 void testRemoveParentLink()
@@ -309,15 +307,10 @@ void testRemoveParentLink()
 
 void MCTSNodeTests()
 {
-    // testDefaultConstructor();
-    // testConstructorWithParent();
-    // testExpandAndDeconstructor();
+    testDefaultConstructor();
+    testConstructorWithParent();
+    testExpandAndDeconstructor();
     testRemoveParentLink();
-
-    // MCTSNode val = MCTSNode();
-    // MCTSNode c = MCTSNode(0, &val);
-
-    // delete val.children.at(0);
 }
 
 int main()
