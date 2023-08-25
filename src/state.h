@@ -22,7 +22,7 @@ struct GameState
 
     void applyMove(int move);
     void applyMoveNoSwitch(int move);
-    double simulate(bool);
+    double simulate(int, bool);
 
 private:
     bool isVerticalWin(int player, int rowPlayed, int lastMove) const;

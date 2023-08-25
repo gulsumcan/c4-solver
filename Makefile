@@ -13,7 +13,7 @@ TST_OBJ = $(patsubst %.cpp,$(OBJ_DIR)/%.o,$(TSTS))
 
 
 ifeq ($(optimise),yes)
-	CFLAGS += -O3 -DNDEBUG -flto=full
+	CFLAGS += -O3 -DNDEBUG -flto
 endif
 
 
@@ -45,7 +45,7 @@ runtest: test
 	./test
 
 clean:
-	-rm -rf $(OBJ_DIR)
+	del .\$(OBJ_DIR)\$(SRC_DIR)\*.o
 
 clobber: clean
 	-rm -f c4 arena test

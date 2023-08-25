@@ -82,9 +82,10 @@ MCTSNode::MCTSNode(int m, MCTSNode *p)
 {
     parent = p;
     move = m;
+    // p->printMCTSNode();
     state = GameState(p->state);
     state.applyMove(m);
-
+    // state.printGameState();
     visits = 0;
     value = 0.0;
     children = vector<MCTSNode *>{};
@@ -96,6 +97,9 @@ MCTSNode::MCTSNode(int m, MCTSNode *p)
 // populates children nodes for MCTSNode
 void MCTSNode::expand()
 {
+    // cout << "Attempting an expand..." << endl;
+    // printMCTSNode();
+
     // check if node already has children
     if (this->children.size() >= COLS)
     {

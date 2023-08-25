@@ -61,7 +61,7 @@ MCTSNode *MCTS::mcts()
         double total = 0.0;
         for (int j = 0; j < simTime; j++)
         {
-            total += selectedNode->state.simulate(false);
+            total += selectedNode->state.simulate(root.state.currentPlayer, false);
         }
         selectedNode->backPropagate(total / simTime);
     }

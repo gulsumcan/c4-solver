@@ -286,7 +286,7 @@ int GameState::getValidMove() const
     return validMoves.at(randomIndex);
 }
 
-double GameState::simulate(bool verbose)
+double GameState::simulate(int p, bool verbose)
 {
     GameState start = GameState(board, currentPlayer);
     int move, player;
@@ -306,7 +306,7 @@ double GameState::simulate(bool verbose)
         {
             if (verbose)
                 cout << "Player " << player << " won!" << endl;
-            return player == 1 ? 1.0 : 0.0;
+            return player == p ? 1.0 : 0.0;
         }
     }
 

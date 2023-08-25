@@ -46,7 +46,7 @@ void testSimulate()
 {
     cout << "Simulating a game until someone wins..." << endl;
     GameState state = GameState();
-    state.simulate(true);
+    state.simulate(1, true);
 }
 
 void testMoves()
