@@ -1,11 +1,51 @@
 #include <cmath>
 #include <iostream>
 #include <unordered_map>
+#include <cassert>
 
 #include "config.h"
 #include "state.h"
 
 using namespace std;
+
+GameState::GameState()
+{
+    for (int i = 0; i < ROWS; i++)
+    {
+        for (int j = 0; j < COLS; j++)
+        {
+            board[i][j] = 0;
+        }
+    }
+    currentPlayer = 1;
+}
+
+GameState::GameState(int newBoard[ROWS][COLS], int player)
+{
+    assert(player == 1 || player == 2);
+
+    currentPlayer = player;
+    for (int i = 0; i < ROWS; i++)
+    {
+        for (int j = 0; j < COLS; j++)
+        {
+            board[i][j] = newBoard[i][j];
+        }
+    }
+}
+
+GameState::GameState(GameState &state)
+{
+    for (int i = 0; i < ROWS; i++)
+    {
+        for (int j = 0; j < COLS; j++)
+        {
+            board[i][j] = state.board[i][j];
+        }
+    }
+
+    currentPlayer = state.currentPlayer;
+}
 
 // Define an operator== for GameState objects
 bool GameState::operator==(const GameState &other) const
@@ -186,6 +226,21 @@ void GameState::applyMove(int move)
         {
             board[row][move] = currentPlayer;
             currentPlayer = currentPlayer == 1 ? 2 : 1;
+            return;
+        }
+    }
+
+    throw invalid_argument("Invalid move!");
+}
+
+void GameState::applyMoveNoSwitch(int move)
+{
+    // there should be empty row for the given column
+    for (int row = 0; row < ROWS; row++)
+    {
+        if (board[row][move] == 0)
+        {
+            board[row][move] = currentPlayer;
             return;
         }
     }

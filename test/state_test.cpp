@@ -3,8 +3,12 @@
 
 #include "../src/config.h"
 #include "../src/state.h"
+#include "../src/mcts_node.h"
 
 using namespace std;
+
+const bool STATE_TEST = false;
+const bool MCTS_NODE_TEST = true;
 
 // Helper function to initialize a GameState object with an empty board
 GameState createEmptyGameState()
@@ -39,16 +43,15 @@ void expectException(void (*func)(GameState, int, int), GameState state, int pla
 
 void testMoves()
 {
-    GameState state = {
-        {
-            {0, 1, 0, 0, 0, 0, 0},
-            {0, 1, 0, 0, 0, 0, 0},
-            {0, 1, 0, 0, 0, 0, 0},
-            {0, 1, 0, 0, 0, 0, 0},
-            {0, 1, 0, 0, 0, 0, 0},
-            {0, 1, 0, 0, 0, 0, 0},
-        },
-        1};
+    int board[ROWS][COLS] = {
+        {0, 1, 0, 0, 0, 0, 0},
+        {0, 1, 0, 0, 0, 0, 0},
+        {0, 1, 0, 0, 0, 0, 0},
+        {0, 1, 0, 0, 0, 0, 0},
+        {0, 1, 0, 0, 0, 0, 0},
+        {0, 1, 0, 0, 0, 0, 0},
+    };
+    GameState state = GameState(board, 1);
 
     // invalid moves
     assert(!state.isValid(1));
@@ -62,16 +65,15 @@ void testMoves()
 
 void testVerticalWin()
 {
-    GameState state = {
-        {
-            {0, 1, 0, 0, 0, 0, 0},
-            {0, 1, 0, 0, 0, 0, 0},
-            {0, 1, 0, 0, 0, 0, 0},
-            {0, 0, 0, 0, 0, 0, 0},
-            {0, 0, 0, 0, 0, 0, 0},
-            {0, 0, 0, 0, 0, 0, 0},
-        },
-        1};
+    int board[ROWS][COLS] = {
+        {0, 1, 0, 0, 0, 0, 0},
+        {0, 1, 0, 0, 0, 0, 0},
+        {0, 1, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0, 0, 0},
+    };
+    GameState state = GameState(board, 1);
 
     state.applyMove(1);
     assert(state.isWin(1, 1));
@@ -79,16 +81,15 @@ void testVerticalWin()
 
 void testHorizontalWin()
 {
-    GameState state = {
-        {
-            {0, 1, 2, 2, 1, 1, 2},
-            {0, 1, 0, 2, 2, 2, 1},
-            {0, 1, 0, 0, 0, 0, 0},
-            {0, 0, 0, 0, 0, 0, 0},
-            {0, 0, 0, 0, 0, 0, 0},
-            {0, 0, 0, 0, 0, 0, 0},
-        },
-        2};
+    int board[ROWS][COLS] = {
+        {0, 1, 2, 2, 1, 1, 2},
+        {0, 1, 0, 2, 2, 2, 1},
+        {0, 1, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0, 0, 0},
+    };
+    GameState state = GameState(board, 2);
 
     assert(!state.isWin(2, 2));
     assert(!state.isWin(2, 3));
@@ -104,16 +105,15 @@ void diagonalWinIllegalState(GameState state, int player, int move)
 
 void testDiagonalLeftWin()
 {
-    GameState state = {
-        {
-            {0, 1, 2, 2, 1, 1, 2},
-            {0, 1, 0, 2, 2, 2, 1},
-            {0, 1, 0, 1, 1, 2, 2},
-            {0, 0, 0, 0, 1, 2, 1},
-            {0, 0, 0, 0, 0, 0, 2},
-            {0, 0, 0, 0, 0, 0, 1},
-        },
-        1};
+    int board[ROWS][COLS] = {
+        {0, 1, 2, 2, 1, 1, 2},
+        {0, 1, 0, 2, 2, 2, 1},
+        {0, 1, 0, 1, 1, 2, 2},
+        {0, 0, 0, 0, 1, 2, 1},
+        {0, 0, 0, 0, 0, 0, 2},
+        {0, 0, 0, 0, 0, 0, 1},
+    };
+    GameState state = GameState(board, 1);
 
     expectException(diagonalWinIllegalState, state, 2, 1);
     expectException(diagonalWinIllegalState, state, 2, 0);
@@ -154,16 +154,15 @@ void testDiagonalLeftWin()
 
 void testDiagonalRighttWin()
 {
-    GameState state = {
-        {
-            {0, 1, 2, 2, 1, 1, 2},
-            {0, 1, 1, 2, 2, 2, 1},
-            {0, 1, 1, 1, 0, 2, 2},
-            {0, 1, 1, 2, 0, 1, 1},
-            {0, 1, 0, 0, 0, 0, 2},
-            {0, 2, 0, 0, 0, 0, 1},
-        },
-        2};
+    int board[ROWS][COLS] = {
+        {0, 1, 2, 2, 1, 1, 2},
+        {0, 1, 1, 2, 2, 2, 1},
+        {0, 1, 1, 1, 0, 2, 2},
+        {0, 1, 1, 2, 0, 1, 1},
+        {0, 1, 0, 0, 0, 0, 2},
+        {0, 2, 0, 0, 0, 0, 1},
+    };
+    GameState state = GameState(board, 2);
 
     expectException(diagonalWinIllegalState, state, 2, 2);
     expectException(diagonalWinIllegalState, state, 2, 0);
@@ -199,23 +198,22 @@ void testDiagonalRighttWin()
     assert(state.isWin(2, 4));
 }
 
-
-void illegalMove(GameState state, int player, int move) {
+void illegalMove(GameState state, int player, int move)
+{
     state.applyMove(move);
 }
 
 void testIllegalMoves()
 {
-    GameState state = {
-        {
-            {0, 1, 2, 2, 1, 1, 2},
-            {0, 1, 1, 2, 2, 2, 1},
-            {0, 1, 1, 1, 0, 2, 2},
-            {0, 1, 1, 2, 0, 1, 1},
-            {0, 1, 0, 0, 0, 0, 2},
-            {0, 2, 0, 0, 0, 0, 1},
-        },
-        2};
+    int board[ROWS][COLS] = {
+        {0, 1, 2, 2, 1, 1, 2},
+        {0, 1, 1, 2, 2, 2, 1},
+        {0, 1, 1, 1, 0, 2, 2},
+        {0, 1, 1, 2, 0, 1, 1},
+        {0, 1, 0, 0, 0, 0, 2},
+        {0, 2, 0, 0, 0, 0, 1},
+    };
+    GameState state = GameState(board, 2);
 
     assert(!state.isValid(1));
     expectException(illegalMove, state, 2, 1);
@@ -229,17 +227,116 @@ void testIllegalMoves()
 
     assert(!state.isValid(6));
     expectException(illegalMove, state, 1, 6);
+}
 
+void testDeepCopy()
+{
+    GameState original = GameState();
+    original.applyMoveNoSwitch(0);
+
+    GameState deepCopy = GameState(original);
+    deepCopy.applyMoveNoSwitch(0);
+
+    assert(original.board[0][0] == deepCopy.board[0][0]);
+    assert(original.board[1][0] == 0);
+    assert(original.board[1][0] != deepCopy.board[1][0]);
+}
+
+/*
+MCTS Node tests
+*/
+
+void testDefaultConstructor()
+{
+    MCTSNode node = MCTSNode();
+
+    assert(node.move == -1);
+    assert(node.parent == nullptr);
+    assert(node.children.size() == 0);
+}
+
+void testConstructorWithParent()
+{
+    GameState state = GameState();
+    MCTSNode parent = MCTSNode();
+    MCTSNode child = MCTSNode(0, &parent);
+
+    assert(child.move == 0);
+    assert(child.parent == &parent);
+    assert(child.children.size() == 0);
+}
+
+void testExpandAndDeconstructor()
+{
+    GameState state = GameState();
+    MCTSNode parent = MCTSNode();
+    parent.expand();
+
+    assert(parent.children.size() == 7);
+
+    MCTSNode *child1 = parent.children.at(0);
+    assert(child1->parent == &parent);
+    assert(child1->children.size() == 0);
+
+    child1->expand();
+    assert(child1->children.size() == 7);
+
+    // MCTSNode* grandChild1 = child1->children.at(0);
+    // assert(grandChild1->parent == child1);
+    // assert(grandChild1->children.size() == 0);
+
+    // grandChild1->expand();
+    // assert(grandChild1 -> children.size() == 7);
+    // MCTSNode* grandChild2 = grandChild1->children.at(0);
+
+    // // test deconstructor
+    // delete grandChild1;
+    // assert(grandChild2==nullptr);
+    // assert(grandChild1==nullptr);
+    // assert(child1->children.size() == 6);
+}
+
+void testRemoveParentLink()
+{
+    GameState state = GameState();
+    MCTSNode parent = MCTSNode();
+    parent.expand();
+
+    MCTSNode *child1 = parent.children.at(0);
+    parent.removeFromParent(child1);
+    assert(parent.children.size() == 6);
+}
+
+void MCTSNodeTests()
+{
+    // testDefaultConstructor();
+    // testConstructorWithParent();
+    // testExpandAndDeconstructor();
+    testRemoveParentLink();
+
+    // MCTSNode val = MCTSNode();
+    // MCTSNode c = MCTSNode(0, &val);
+
+    // delete val.children.at(0);
 }
 
 int main()
 {
-    testMoves();
-    testVerticalWin();
-    testHorizontalWin();
-    testDiagonalLeftWin();
-    testDiagonalRighttWin();
-    testIllegalMoves();
+    if (STATE_TEST)
+    {
+        testMoves();
+        testVerticalWin();
+        testHorizontalWin();
+        testDiagonalLeftWin();
+        testDiagonalRighttWin();
+        testIllegalMoves();
+
+        testDeepCopy();
+    }
+    if (MCTS_NODE_TEST)
+    {
+        MCTSNodeTests();
+    }
 
     return 0;
 }

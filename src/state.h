@@ -1,18 +1,24 @@
-using namespace std;
+#pragma once
 
 #include "config.h"
+
+using namespace std;
 
 struct GameState
 {
     int board[ROWS][COLS];
     int currentPlayer; // player 1 - opponent 2
 
+    GameState();
+    GameState(int b[ROWS][COLS], int p);
+    GameState(GameState &other);
     bool operator==(const GameState &other) const;
     bool isValid(int move) const;
     bool isWin(int player, int lastMove) const;
     void printGameState() const;
 
     void applyMove(int move);
+    void applyMoveNoSwitch(int move);
 
 private:
     bool isVerticalWin(int player, int rowPlayed, int lastMove) const;
