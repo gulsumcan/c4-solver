@@ -73,7 +73,7 @@ bool GameState::isValid(int move) const
     if (move < 0 || move >= COLS)
         return false;
 
-    return board[ROWS-1][move] == 0;
+    return board[ROWS - 1][move] == 0;
     // // there should be empty row for the given column
     // for (int row = 0; row < ROWS; row++)
     // {
@@ -205,6 +205,12 @@ bool GameState::isDraw() const
 
 void GameState::printGameState() const
 {
+
+    for (int i = 0; i < COLS; i++)
+    {
+        cout << i << " ";
+    }
+    cout << endl;
     // Print the game board
     for (int row = 0; row < ROWS; ++row)
     {

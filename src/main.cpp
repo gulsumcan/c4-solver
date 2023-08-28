@@ -38,7 +38,7 @@ double competeAgainstHuman(GameState state)
         else
         {
             time_point moveStartTime = steady_clock().now();
-            MCTS mcts = MCTS(state, 100000);
+            MCTS mcts = MCTS(state, 10000);
             MCTSNode *bestMove = mcts.mcts();
             time_point moveEndTime = steady_clock().now();
 
@@ -192,32 +192,6 @@ double competeAgainstRandom(GameState state)
 int main()
 {
     srand(1);
-
-    // GameState initialState = {
-    //     {
-    //         {0, 0, 2, 1, 2, 1, 2}, // Row 1
-    //         {0, 0, 1, 1, 1, 1, 0}, // Row 2
-    //         {0, 0, 0, 2, 0, 2, 0}, // Row 3
-    //         {0, 0, 0, 0, 0, 0, 0}, // Row 4
-    //         {0, 0, 0, 0, 0, 0, 0}, // Row 5
-    //         {0, 0, 0, 0, 0, 0, 0}  // Row 6
-    //     },
-    //     1
-    // };
-
-    // GameState initialState = {
-    //     {
-    //         {1, 2, 2, 1, 2, 1, 1}, // Row 1
-    //         {2, 1, 2, 1, 1, 2, 1}, // Row 2
-    //         {1, 1, 1, 2, 2, 2, 1}, // Row 3
-    //         {2, 1, 2, 0, 1, 2, 0}, // Row 4
-    //         {2, 2, 2, 0, 2, 0, 0}, // Row 5
-    //         {1, 1, 0, 0, 1, 0, 0}  // Row 6
-    //     },
-    //     1
-    // };
-
-    // cout << result(initialState, 2) << endl;
 
     int board[ROWS][COLS] = {
         {0, 0, 0, 0, 0, 0, 0}, // Row 1
